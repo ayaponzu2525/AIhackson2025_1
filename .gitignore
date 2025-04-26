@@ -1,0 +1,13 @@
+# 仮想環境
+env/
+
+# Pythonのキャッシュ
+__pycache__/
+*.py[cod]
+
+# VSCodeなどのエディタ設定
+.vscode/
+
+# OSによる不要ファイル
+.DS_Store
+Thumbs.db
