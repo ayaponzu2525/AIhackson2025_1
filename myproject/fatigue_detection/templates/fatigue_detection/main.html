@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>疲労検知メイン画面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+        }
+        #camera {
+            border: 2px solid #333;
+        }
+        #graph-container {
+            width: 400px;
+        }
+        #hp-bar {
+            width: 300px;
+            height: 30px;
+            background-color: #ddd;
+            border: 2px solid #333;
+            margin-top: 20px;
+            position: relative;
+        }
+        #hp {
+            background-color: limegreen;
+            height: 100%;
+            width: 100%;
+            transition: width 0.5s;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>疲労検知メイン画面</h1>
+
+<div class="container">
+    <div>
+        <img id="camera" src="{% url 'video_feed' %}" width="640" height="480">
+        <div id="hp-bar">
+            <div id="hp"></div>
+        </div>
+    </div>
+    <div id="graph-container">
+        <canvas id="fatigueChart"></canvas>
+    </div>
+    
+</div>
+<a href="{% url 'home' %}" class="button">ホームに戻る</a>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 疲労スコア用HPバー更新
+    function updateHP(score) {
+        const hpElement = document.getElementById('hp');
+        const hpPercent = Math.max(0, 100 - score);
+        hpElement.style.width = hpPercent + "%";
+
+        if (hpPercent < 30) {
+            hpElement.style.backgroundColor = "red";
+        } else if (hpPercent < 60) {
+            hpElement.style.backgroundColor = "orange";
+        } else {
+            hpElement.style.backgroundColor = "limegreen";
+        }
+    }
+
+    const ctx = document.getElementById('fatigueChart').getContext('2d');
+    const fatigueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '疲労スコア',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.2
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // 1秒ごとにサーバーから本物の疲労スコアを取得して更新
+    setInterval(() => {
+        fetch("{% url 'get_fatigue_score' %}")
+            .then(response => response.json())
+            .then(data => {
+                console.log("[取得した疲労スコア]", data.fatigue_score);  // ★これ追加！
+                const score = data.fatigue_score;
+                updateHP(score);
+
+                const now = new Date().toLocaleTimeString();
+                fatigueChart.data.labels.push(now);
+                fatigueChart.data.datasets[0].data.push(score);
+
+                if (fatigueChart.data.labels.length > 10) {
+                    fatigueChart.data.labels.shift();
+                    fatigueChart.data.datasets[0].data.shift();
+                }
+
+                fatigueChart.update();
+            });
+    }, 1000);
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>疲労検知ダッシュボード</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>疲労検知ダッシュボード</h1>
+
+<canvas id="dashboardChart" width="600" height="300"></canvas>
+
+<div>
+    <p>瞬き合計: <span id="total-blinks">0</span>回</p>
+    <p>平均疲労スコア: <span id="avg-score">0</span></p>
+</div>
+
+<a href="{% url 'home' %}">← ホームに戻る</a>
+
+<script>
+// 仮データ（あとでリアルデータにする）
+let dummyScores = [20, 25, 30, 28, 35, 40, 42, 38, 33, 30];
+let dummyBlinks = 12;
+
+const ctx = document.getElementById('dashboardChart').getContext('2d');
+const dashboardChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dummyScores.map((_, idx) => `${idx * 10}s`),  // 10秒ごと仮
+        datasets: [{
+            label: '疲労スコア推移',
+            data: dummyScores,
+            borderColor: 'blue',
+            backgroundColor: 'lightblue',
+            tension: 0.2
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                min: 0,
+                max: 100
+            }
+        }
+    }
+});
+
+// 仮の集計表示
+document.getElementById('total-blinks').textContent = dummyBlinks;
+document.getElementById('avg-score').textContent = (dummyScores.reduce((a, b) => a + b, 0) / dummyScores.length).toFixed(1);
+</script>
+
+</body>
+</html>
