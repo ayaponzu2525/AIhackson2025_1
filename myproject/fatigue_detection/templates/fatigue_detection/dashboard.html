@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>疲労検知ダッシュボード</title>
+    <style>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -16,7 +32,7 @@
     <p>平均疲労スコア: <span id="avg-score">0</span></p>
 </div>
 
-<a href="{% url 'home' %}">← ホームに戻る</a>
+<a href="{% url 'home' %}" class="button">ホームに戻る</a>
 
 <script>
 // 仮データ（あとでリアルデータにする）
